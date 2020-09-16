@@ -13,22 +13,26 @@ LABEL org.label-schema.schema-version="1.0"
 
 # -- Layer: JupyterLab + Python kernel for PySpark
 
-ARG spark_version
-ARG jupyterlab_version
+ARG spark_version=2.12
+ARG jupyterlab_version=2.2.8
 
 RUN apt-get update -y && \
     apt-get install -y python3-pip python3-dev && \
     pip3 install --upgrade pip && \
-    pip3 install pyspark==${spark_version} jupyterlab==${jupyterlab_version}
+    # pip3 install pyspark==${spark_version} jupyterlab==${jupyterlab_version}
+    pip3 install pyspark jupyterlab
 
 # -- Layer: Scala kernel for Spark
 
-ARG scala_version
+ARG scala_version=2.12.12
 
-RUN apt-get install -y ca-certificates-java --no-install-recommends && \
-    curl -Lo coursier https://git.io/coursier-cli && \
-    chmod +x coursier && \
-    ./coursier launch --fork almond:0.10.0 --scala ${scala_version} -- --display-name "Scala ${scala_version}" --install && \
+RUN apt-get install -y ca-certificates-java --no-install-recommends curl
+
+RUN curl -Lo coursier https://git.io/coursier-cli && \
+    chmod +x coursier
+
+# RUN ./coursier launch --fork almond:0.10.0 --scala ${scala_version} -- --display-name "Scala ${scala_version}" --install && \
+RUN ./coursier launch --fork almond:0.10.0 -- --install && \
     rm -f coursier
 
 # -- Layer: R kernel for SparkR
